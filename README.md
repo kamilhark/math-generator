@@ -1,6 +1,15 @@
-# Fraction Worksheet Generator
+# Generator Zadań Matematycznych
 
-Generates printable PDF worksheets with fraction addition and subtraction problems using **mixed numbers** (e.g. 2⅔) and **improper fractions** (e.g. 5/2). Each worksheet includes a full answer key.
+Generates printable PDF worksheets with fraction problems for 12-year-old students. Each worksheet includes a cut-off answer key at the bottom of the page.
+
+Four types of worksheets are available:
+
+| Generator | Description |
+|---|---|
+| `generate_addsub.py` | Addition & subtraction of mixed numbers and improper fractions |
+| `generate_muldiv.py` | Multiplication & division of mixed numbers and improper fractions |
+| `generate_convert.py` | Converting between improper fractions and mixed numbers |
+| `generate_mixed_ops.py` | Mixed operations with parentheses (order-of-operations practice) |
 
 ## Setup
 
@@ -8,42 +17,59 @@ Generates printable PDF worksheets with fraction addition and subtraction proble
 pip install -r requirements.txt
 ```
 
-## Usage
+## Web App
+
+The easiest way to use the generators is via the Streamlit web app:
 
 ```bash
-# Generate a 20-problem worksheet (default)
-python generate.py
-
-# Custom number of problems
-python generate.py -n 30
-
-# Addition only
-python generate.py --ops +
-
-# Subtraction only
-python generate.py --ops -
-
-# Set output filename
-python generate.py -o my_worksheet.pdf
-
-# Set a random seed for reproducibility
-python generate.py --seed 42
-
-# Limit difficulty (max whole number = 5, max denominator = 8)
-python generate.py --max-whole 5 --max-denom 8
-
-# Custom title
-python generate.py --title "Fractions Quiz — Chapter 5"
+streamlit run app.py
 ```
 
-## Options
+Then open [http://localhost:8501](http://localhost:8501) in your browser. Select a worksheet type, choose the number of problems (up to 20), and click **Generuj i pobierz arkusz** to download a ready-to-print PDF.
+
+## Command-line Usage
+
+Each generator can also be run directly from the command line.
+
+```bash
+# Addition & subtraction
+python generate_addsub.py -n 20 -o worksheet.pdf
+
+# Multiplication & division
+python generate_muldiv.py -n 20 -o worksheet.pdf
+
+# Improper ↔ mixed conversion
+python generate_convert.py -n 20 -o worksheet.pdf
+
+# Mixed operations with parentheses
+python generate_mixed_ops.py -n 20 -o worksheet.pdf
+```
+
+### Common options (all generators)
 
 | Flag | Default | Description |
-|------|---------|-------------|
+|---|---|---|
 | `-n` / `--num-problems` | 20 | Number of problems |
-| `-o` / `--output` | `worksheet_<timestamp>.pdf` | Output filename |
-| `--max-whole` | 9 | Largest whole-number part |
-| `--max-denom` | 12 | Largest denominator |
-| `--ops` | `+,-` | Operations (comma-separated) |
-| `--title` | `Fraction Worksheet` | Title printed on the worksheet |
-| `--seed` | *(random)* | Random seed |
+| `-o` / `--output` | `<name>_<timestamp>.pdf` | Output filename |
+| `--title` | *(Polish title)* | Title printed on the worksheet |
+| `--seed` | *(random)* | Random seed for reproducibility |
+
+### `generate_addsub.py` / `generate_muldiv.py`
+
+| Flag | Default | Description |
+|---|---|---|
+| `--max-whole` | 4 / 3 | Largest whole-number part |
+| `--max-denom` | 8 / 6 | Largest denominator |
+| `--ops` | `+,-` / `x,/` | Operations to include |
+
+### `generate_convert.py`
+
+| Flag | Default | Description |
+|---|---|---|
+| `--max-whole` | 5 | Largest whole-number part |
+| `--max-denom` | 10 | Largest denominator |
+
+## Dependencies
+
+- [ReportLab](https://www.reportlab.com/) — PDF generation
+- [Streamlit](https://streamlit.io/) — web app
