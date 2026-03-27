@@ -8,8 +8,24 @@ import math
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-pdfmetrics.registerFont(TTFont("Font", "/System/Library/Fonts/Supplemental/Arial.ttf"))
-pdfmetrics.registerFont(TTFont("Font-Bold", "/System/Library/Fonts/Supplemental/Arial Bold.ttf"))
+_FONT_CANDIDATES = [
+    # macOS
+    ("/System/Library/Fonts/Supplemental/Arial.ttf",
+     "/System/Library/Fonts/Supplemental/Arial Bold.ttf"),
+    # Linux — fonts-liberation (apt)
+    ("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"),
+    # Linux — fonts-liberation alternate path
+    ("/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+     "/usr/share/fonts/liberation/LiberationSans-Bold.ttf"),
+]
+
+import os as _os
+_regular, _bold = next(
+    (r, b) for r, b in _FONT_CANDIDATES if _os.path.exists(r)
+)
+pdfmetrics.registerFont(TTFont("Font", _regular))
+pdfmetrics.registerFont(TTFont("Font-Bold", _bold))
 
 FONT = "Font"
 FONT_BOLD = "Font-Bold"
