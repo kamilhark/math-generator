@@ -2,7 +2,7 @@
 
 Generates printable PDF worksheets with fraction problems for 12-year-old students. Each worksheet includes a cut-off answer key at the bottom of the page.
 
-Four types of worksheets are available:
+Five types of worksheets are available:
 
 | Generator | Description |
 |---|---|
@@ -10,6 +10,7 @@ Four types of worksheets are available:
 | `generate_muldiv.py` | Multiplication & division of mixed numbers and improper fractions |
 | `generate_convert.py` | Converting between improper fractions and mixed numbers |
 | `generate_mixed_ops.py` | Mixed operations with parentheses (order-of-operations practice) |
+| `generate_fractions_visual.py` | Fractions on a number line (letters), pie charts, subdivided rectangles |
 
 ## Setup
 
@@ -43,6 +44,9 @@ python generate_convert.py -n 20 -o worksheet.pdf
 
 # Mixed operations with parentheses
 python generate_mixed_ops.py -n 20 -o worksheet.pdf
+
+# Visual fraction tasks (number line, pie, subdivided rectangle)
+python generate_fractions_visual.py -n 20 -o worksheet.pdf
 ```
 
 ### Common options (all generators)
@@ -68,6 +72,16 @@ python generate_mixed_ops.py -n 20 -o worksheet.pdf
 |---|---|---|
 | `--max-whole` | 5 | Largest whole-number part |
 | `--max-denom` | 10 | Largest denominator |
+
+### `generate_fractions_visual.py`
+
+| Flag | Default | Description |
+|---|---|---|
+| `-n` / `--count` | 20 | Number of problems |
+| `--type` | *(repeatable)* | `number_line`, `circle`, or `bar` (omit for a random mix) |
+| `--max-denom-number-line` | 10 | Largest tick spacing denominator on the axis |
+| `--max-denom-circle` | 8 | Largest number of pie sectors |
+| `--max-depth-bar` | 3 | Deepest binary split depth for rectangles |
 
 ## Dependencies
 

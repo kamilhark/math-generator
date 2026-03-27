@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Streamlit web app — Math Worksheet Generator
-Exposes all four PDF generators with a friendly UI.
+Exposes all PDF generators with a friendly UI.
 """
 
 import tempfile
@@ -22,6 +22,7 @@ GENERATORS = {
     "✖️➗  Mnożenie i dzielenie": "muldiv",
     "🔄  Zamiana ułamków niewłaściwych i mieszanych": "convert",
     "🧮  Działania mieszane (z nawiasami)": "mixed_ops",
+    "📊  Ułamki na osi i diagramach": "fractions_visual",
 }
 
 choice = st.selectbox("Wybierz rodzaj arkusza", list(GENERATORS.keys()))
@@ -40,6 +41,7 @@ worksheet_title = {
     "muldiv":    "Mnożenie i dzielenie ułamków",
     "convert":   "Ułamki niewłaściwe i liczby mieszane",
     "mixed_ops": "Działania na ułamkach z nawiasami",
+    "fractions_visual": "Ułamki – oś liczbowa i diagramy",
 }[kind]
 
 # ---------------------------------------------------------------------------
@@ -47,12 +49,26 @@ worksheet_title = {
 # ---------------------------------------------------------------------------
 extra_kwargs: dict = {}
 
+if kind == "fractions_visual":
+    fv_labels = {
+        "number_line": "Oś liczbowa (litery)",
+        "circle": "Koło (wykres kołowy)",
+        "bar": "Prostokąt (podział)",
+    }
+    fv_choice = st.multiselect(
+        "Rodzaje zadań (puste = wszystkie losowo)",
+        options=list(fv_labels.keys()),
+        format_func=lambda k: fv_labels[k],
+        default=list(fv_labels.keys()),
+    )
+    extra_kwargs["problem_types"] = fv_choice if fv_choice else None
+
 
 # ---------------------------------------------------------------------------
 # Generate PDF and offer single-click download
 # ---------------------------------------------------------------------------
 
-def build_pdf_bytes(kind, num_problems, worksheet_title):
+def build_pdf_bytes(kind, num_problems, worksheet_title, **kwargs):
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         tmp_path = tmp.name
     try:
@@ -68,6 +84,14 @@ def build_pdf_bytes(kind, num_problems, worksheet_title):
         elif kind == "mixed_ops":
             from generate_mixed_ops import build_pdf
             build_pdf(filename=tmp_path, num_problems=num_problems, title=worksheet_title)
+        elif kind == "fractions_visual":
+            from generate_fractions_visual import build_pdf
+            build_pdf(
+                filename=tmp_path,
+                num_problems=num_problems,
+                title=worksheet_title,
+                problem_types=kwargs.get("problem_types"),
+            )
         with open(tmp_path, "rb") as f:
             return f.read()
     finally:
@@ -75,7 +99,7 @@ def build_pdf_bytes(kind, num_problems, worksheet_title):
 
 
 st.divider()
-pdf_bytes = build_pdf_bytes(kind, int(num_problems), worksheet_title)
+pdf_bytes = build_pdf_bytes(kind, int(num_problems), worksheet_title, **extra_kwargs)
 st.download_button(
     label="🖨️  Generuj i pobierz arkusz",
     data=pdf_bytes,
