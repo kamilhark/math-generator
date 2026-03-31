@@ -13,7 +13,6 @@ Examples of generated problems:
 
 import argparse
 import random
-import math
 import os
 import string
 from fractions import Fraction
@@ -217,7 +216,7 @@ def generate_problem():
 # PDF drawing
 # ---------------------------------------------------------------------------
 
-def draw_expression(c, x, y, tokens, font_size=13):
+def draw_expression(c, x, y, tokens, font_size=11):
     """Draw an expression from token list. Returns total width consumed."""
     cx = x
     paren_fs = int(font_size * 1.7)
@@ -251,7 +250,7 @@ def draw_expression(c, x, y, tokens, font_size=13):
     return cx - x
 
 
-def draw_problem_row(c, x, y, problem, index, font_size=13):
+def draw_problem_row(c, x, y, problem, index, line_end_x=None, font_size=11):
     tokens, _answer = problem
 
     c.setFont(FONT_BOLD, font_size - 1)
@@ -266,9 +265,12 @@ def draw_problem_row(c, x, y, problem, index, font_size=13):
     c.drawString(cx, y, "=")
     cx += c.stringWidth("=", FONT, font_size) + 8
 
+    if line_end_x is None:
+        line_end_x = cx + 70
+
     c.setStrokeColorRGB(0.75, 0.75, 0.75)
     c.setDash(2, 3)
-    c.line(cx, y - 4, cx + 70, y - 4)
+    c.line(cx, y - 4, line_end_x, y - 4)
     c.setDash()
     c.setStrokeColorRGB(0, 0, 0)
 
@@ -297,11 +299,10 @@ def build_pdf(filename, num_problems=20,
     problems_start_y = top_y - 55
     problems_end_y = cut_line_y + 15
 
-    font_size = 13
-    col_width = (width - 2 * margin_x) / 2
-    row_height = 48
-    rows_per_col = int((problems_start_y - problems_end_y) // row_height)
-    page_capacity = rows_per_col * 2
+    font_size = 11
+    row_height = 46
+    rows_per_page = max(1, int((problems_start_y - problems_end_y) // row_height))
+    page_capacity = rows_per_page
 
     ans_font = 9
     ans_row_h = 20
@@ -321,14 +322,11 @@ def build_pdf(filename, num_problems=20,
         c.drawCentredString(width / 2, top_y, title)
         draw_sheet_id(c, width - margin_x, top_y + 2, sheet_id)
 
-        per_col = math.ceil(len(page_probs) / 2)
         for i, prob in enumerate(page_probs):
             global_idx = sum(len(pp) for pp in page_problems[:page_idx]) + i + 1
-            col = 0 if i < per_col else 1
-            row = i if col == 0 else i - per_col
-            px = margin_x + col * col_width
-            py = problems_start_y - row * row_height
-            draw_problem_row(c, px, py, prob, global_idx, font_size)
+            px = margin_x
+            py = problems_start_y - i * row_height
+            draw_problem_row(c, px, py, prob, global_idx, width - margin_x, font_size)
 
         draw_cut_line(c, cut_line_y, margin_x, width)
         draw_sheet_id(c, width - margin_x, cut_line_y - 13, sheet_id)

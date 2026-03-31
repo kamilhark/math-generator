@@ -33,7 +33,7 @@ st.divider()
 # ---------------------------------------------------------------------------
 # Shared controls
 # ---------------------------------------------------------------------------
-num_problems = st.number_input("Liczba zadań", min_value=4, max_value=20, value=20, step=2)
+num_problems = st.number_input("Liczba zadań", min_value=4, max_value=20, value=10, step=2)
 seed = None
 
 worksheet_title = {
