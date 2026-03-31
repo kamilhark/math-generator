@@ -8,15 +8,15 @@ import argparse
 import random
 import os
 import string
-from fractions import Fraction
 from datetime import datetime
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from sympy import Rational
 
 from common import (
-    FONT, FONT_BOLD, simplify, to_mixed,
+    FONT, FONT_BOLD, rational_parts,
     draw_fraction, draw_mixed_or_improper,
     draw_cut_line, draw_sheet_id, draw_answer_value,
 )
@@ -58,15 +58,20 @@ def generate_problem(max_whole=9, max_denom=12, operations=None):
     a_n, a_d, a_style = random_fraction(max_whole, max_denom)
     b_n, b_d, b_style = random_fraction(max_whole, max_denom)
 
-    if op == "-" and Fraction(a_n, a_d) < Fraction(b_n, b_d):
+    a_value = Rational(a_n, a_d)
+    b_value = Rational(b_n, b_d)
+
+    if op == "-" and a_value < b_value:
         a_n, a_d, a_style, b_n, b_d, b_style = b_n, b_d, b_style, a_n, a_d, a_style
+        a_value, b_value = b_value, a_value
 
     if op == "+":
-        ans = Fraction(a_n, a_d) + Fraction(b_n, b_d)
+        ans = a_value + b_value
     else:
-        ans = Fraction(a_n, a_d) - Fraction(b_n, b_d)
+        ans = a_value - b_value
 
-    return a_n, a_d, a_style, op, b_n, b_d, b_style, ans.numerator, ans.denominator
+    ans_n, ans_d = rational_parts(ans)
+    return a_n, a_d, a_style, op, b_n, b_d, b_style, ans_n, ans_d
 
 
 # ---------------------------------------------------------------------------

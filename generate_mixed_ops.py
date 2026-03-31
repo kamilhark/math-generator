@@ -15,15 +15,15 @@ import argparse
 import random
 import os
 import string
-from fractions import Fraction
 from datetime import datetime
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from sympy import Integer, Rational
 
 from common import (
-    FONT, FONT_BOLD, simplify, to_mixed,
+    FONT, FONT_BOLD,
     draw_fraction, draw_cut_line, draw_sheet_id, draw_answer_value,
 )
 
@@ -34,12 +34,12 @@ from common import (
 
 # Denominators 2, 3, 4, 6 all share LCD ≤ 12
 FRAC_POOL = [
-    Fraction(1, 2), Fraction(1, 3), Fraction(2, 3),
-    Fraction(1, 4), Fraction(3, 4),
-    Fraction(1, 6), Fraction(5, 6),
+    Rational(1, 2), Rational(1, 3), Rational(2, 3),
+    Rational(1, 4), Rational(3, 4),
+    Rational(1, 6), Rational(5, 6),
 ]
 
-WHOLE_POOL = [Fraction(n) for n in range(2, 7)]
+WHOLE_POOL = [Integer(n) for n in range(2, 7)]
 
 ALL_OPERANDS = FRAC_POOL + WHOLE_POOL
 
@@ -53,7 +53,7 @@ ALL_OPS = ADD_SUB + MUL_DIV
 # ---------------------------------------------------------------------------
 
 def _apply(op, a, b):
-    """Evaluate a single binary operation on two Fractions."""
+    """Evaluate a single binary operation on two SymPy rationals."""
     if op == "+":
         return a + b
     if op == "−":
@@ -69,7 +69,7 @@ def _is_clean(result):
     """A result suitable for a 12-year-old: positive, small, simple denominator."""
     if result is None or result < 0:
         return False
-    if result.denominator > 12 or abs(result.numerator) > 30:
+    if result.q > 12 or abs(result.p) > 30:
         return False
     return True
 
@@ -83,7 +83,7 @@ def _pick_operands(count):
 
 
 def _frac_token(f):
-    return ("num", f.numerator, f.denominator)
+    return ("num", int(f.p), int(f.q))
 
 
 # ---------------------------------------------------------------------------
@@ -185,7 +185,7 @@ def _gen_no_paren():
 
 
 def generate_problem():
-    """Return (tokens, answer_Fraction) for one problem."""
+    """Return (tokens, answer_Rational) for one problem."""
     generators = [
         (_gen_paren_left, 40),
         (_gen_paren_right, 40),
@@ -334,7 +334,7 @@ def build_pdf(filename, num_problems=20,
         for i, prob in enumerate(page_probs):
             global_idx = sum(len(pp) for pp in page_problems[:page_idx]) + i + 1
             _tokens, answer = prob
-            ans_n, ans_d = answer.numerator, answer.denominator
+            ans_n, ans_d = int(answer.p), int(answer.q)
             col = i % ans_cols
             row = i // ans_cols
             ax = margin_x + col * ans_col_w

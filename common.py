@@ -3,10 +3,9 @@
 Shared font registration, math helpers, and PDF drawing primitives.
 """
 
-import math
-
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from sympy import Rational
 
 _FONT_CANDIDATES = [
     # macOS
@@ -35,30 +34,45 @@ FONT_BOLD = "Font-Bold"
 # Math helpers
 # ---------------------------------------------------------------------------
 
+def as_rational(n, d=1):
+    """Return a normalized SymPy Rational."""
+    return Rational(int(n), int(d))
+
+
+def rational_parts(value):
+    """Return (numerator, denominator) as builtin ints."""
+    value = as_rational(value.p, value.q) if hasattr(value, "p") else as_rational(value)
+    return int(value.p), int(value.q)
+
+
 def simplify(n, d):
-    if d == 0:
-        return n, d
-    g = math.gcd(abs(n), abs(d))
-    n, d = n // g, d // g
-    if d < 0:
-        n, d = -n, -d
-    return n, d
+    numer, denom = rational_parts(as_rational(n, d))
+    return numer, denom
+
+
+def mixed_to_rational(whole, rem, denom):
+    """Build a Rational from a mixed number."""
+    whole = int(whole)
+    rem = abs(int(rem))
+    denom = int(denom)
+    sign = -1 if whole < 0 else 1
+    whole_abs = abs(whole)
+    return as_rational(sign * (whole_abs * denom + rem), denom)
 
 
 def to_mixed(n, d):
     """Return (whole, numerator_remainder, denominator)."""
-    n, d = simplify(n, d)
-    if d == 0:
+    numer, denom = rational_parts(as_rational(n, d))
+    if numer == 0:
         return 0, 0, 1
-    negative = n < 0
-    n = abs(n)
-    whole = n // d
-    rem = n % d
+    negative = numer < 0
+    numer = abs(numer)
+    whole, rem = divmod(numer, denom)
     if negative and (whole or rem):
         whole = -whole if whole else 0
         if rem and whole == 0:
             rem = -rem
-    return whole, rem, d
+    return whole, rem, denom
 
 
 # ---------------------------------------------------------------------------

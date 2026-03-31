@@ -9,16 +9,15 @@ import argparse
 import random
 import os
 import string
-from fractions import Fraction
 from datetime import datetime
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from sympy import Rational
 
 from common import (
-    FONT, FONT_BOLD, simplify, to_mixed,
-    draw_fraction, draw_mixed_or_improper,
+    FONT, FONT_BOLD, rational_parts, simplify, draw_mixed_or_improper,
     draw_cut_line, draw_sheet_id, draw_answer_value,
 )
 
@@ -57,8 +56,9 @@ def generate_mul_problem(max_whole=3, max_denom=6):
     """Multiplication: pick two fractions, multiply them."""
     a_n, a_d, a_style = pick_operand(max_whole, max_denom)
     b_n, b_d, b_style = pick_operand(max_whole, max_denom)
-    ans = Fraction(a_n, a_d) * Fraction(b_n, b_d)
-    return a_n, a_d, a_style, "×", b_n, b_d, b_style, ans.numerator, ans.denominator
+    ans = Rational(a_n, a_d) * Rational(b_n, b_d)
+    ans_n, ans_d = rational_parts(ans)
+    return a_n, a_d, a_style, "×", b_n, b_d, b_style, ans_n, ans_d
 
 
 def generate_div_problem(max_whole=3, max_denom=6):
@@ -67,8 +67,8 @@ def generate_div_problem(max_whole=3, max_denom=6):
     answer = random.randint(1, 8)
     b_n, b_d, b_style = pick_operand(max_whole, max_denom)
 
-    a_frac = Fraction(answer) * Fraction(b_n, b_d)
-    a_n, a_d = a_frac.numerator, a_frac.denominator
+    a_frac = Rational(answer) * Rational(b_n, b_d)
+    a_n, a_d = rational_parts(a_frac)
 
     if a_d == 1:
         a_style = "mixed"

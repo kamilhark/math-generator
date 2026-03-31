@@ -18,7 +18,7 @@ from reportlab.pdfgen import canvas
 
 from common import (
     FONT, FONT_BOLD,
-    draw_fraction, draw_cut_line, draw_sheet_id,
+    draw_fraction, draw_cut_line, draw_sheet_id, mixed_to_rational, rational_parts,
 )
 
 
@@ -36,7 +36,7 @@ def generate_conversion_problem(max_whole=5, max_denom=10):
     denom = random.randint(2, max_denom)
     whole = random.randint(1, max_whole)
     remainder = random.randint(1, denom - 1)
-    numer = whole * denom + remainder
+    numer, _ = rational_parts(mixed_to_rational(whole, remainder, denom))
 
     direction = random.choice(["to_mixed", "to_improper"])
     return direction, numer, denom, whole, remainder

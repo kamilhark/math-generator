@@ -16,12 +16,12 @@ import os
 import random
 import string
 from datetime import datetime
-from fractions import Fraction
 from typing import List, Optional, Sequence, Tuple
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from sympy import Rational
 
 from common import FONT, FONT_BOLD, draw_cut_line, draw_fraction, draw_sheet_id, simplify
 
@@ -99,17 +99,17 @@ def _split_cell(
     return [(x, y, w, h)]
 
 
-def _dyadic_area_frac(w: float, h: float) -> Fraction:
+def _dyadic_area_frac(w: float, h: float) -> Rational:
     """Area w*h when w,h are (sums of) powers of 1/2 from binary splitting."""
     a = w * h
     if a <= 0:
-        return Fraction(0, 1)
+        return Rational(0, 1)
     for n in range(0, 28):
         den = 2**n
         num = round(a * den)
         if abs(num / den - a) < 1e-9:
-            return Fraction(num, den)
-    return Fraction(a).limit_denominator(2**24)
+            return Rational(num, den)
+    return Rational(str(a))
 
 
 def generate_bar_problem(max_depth: int = 3) -> dict:
@@ -126,7 +126,7 @@ def generate_bar_problem(max_depth: int = 3) -> dict:
     shaded_frac = sum(
         _dyadic_area_frac(w, h) for (x, y, w, h) in [cells[i] for i in shaded_idx]
     )
-    numer, denom = simplify(shaded_frac.numerator, shaded_frac.denominator)
+    numer, denom = simplify(shaded_frac.p, shaded_frac.q)
 
     return {
         "kind": "bar",

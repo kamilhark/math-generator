@@ -87,3 +87,4 @@ python generate_fractions_visual.py -n 20 -o worksheet.pdf
 
 - [ReportLab](https://www.reportlab.com/) — PDF generation
 - [Streamlit](https://streamlit.io/) — web app
+- [SymPy](https://www.sympy.org/) — rational arithmetic for worksheet generators
