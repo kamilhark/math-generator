@@ -2,7 +2,7 @@
 
 Generates printable PDF worksheets with fraction problems for 12-year-old students. Each worksheet includes a cut-off answer key at the bottom of the page.
 
-Five types of worksheets are available:
+Six types of worksheets are available:
 
 | Generator | Description |
 |---|---|
@@ -11,6 +11,7 @@ Five types of worksheets are available:
 | `generate_convert.py` | Converting between improper fractions and mixed numbers |
 | `generate_mixed_ops.py` | Mixed operations with parentheses (order-of-operations practice) |
 | `generate_fractions_visual.py` | Fractions on a number line (letters), pie charts, subdivided rectangles |
+| `generate_equiv.py` | Equivalent fractions — fill in the missing numerator or denominator |
 
 ## Setup
 
@@ -47,6 +48,9 @@ python generate_mixed_ops.py -n 20 -o worksheet.pdf
 
 # Visual fraction tasks (number line, pie, subdivided rectangle)
 python generate_fractions_visual.py -n 20 -o worksheet.pdf
+
+# Equivalent fractions — fill in the missing number
+python generate_equiv.py -n 20 -o worksheet.pdf
 ```
 
 ### Common options (all generators)
@@ -82,6 +86,13 @@ python generate_fractions_visual.py -n 20 -o worksheet.pdf
 | `--max-denom-number-line` | 10 | Largest tick spacing denominator on the axis |
 | `--max-denom-circle` | 8 | Largest number of pie sectors |
 | `--max-depth-bar` | 3 | Deepest binary split depth for rectangles |
+
+### `generate_equiv.py`
+
+| Flag | Default | Description |
+|---|---|---|
+| `--max-denom` | 9 | Largest denominator of the base fraction |
+| `--max-mult` | 12 | Largest multiplier used to build the equivalent fraction |
 
 ## Dependencies
 

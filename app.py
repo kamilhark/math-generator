@@ -23,6 +23,7 @@ GENERATORS = {
     "🔄  Zamiana ułamków niewłaściwych i mieszanych": "convert",
     "🧮  Działania mieszane (z nawiasami)": "mixed_ops",
     "📊  Ułamki na osi i diagramach": "fractions_visual",
+    "🟰  Ułamki równoważne (uzupełnij okienko)": "equiv",
 }
 
 choice = st.selectbox("Wybierz rodzaj arkusza", list(GENERATORS.keys()))
@@ -42,6 +43,7 @@ worksheet_title = {
     "convert":   "Ułamki niewłaściwe i liczby mieszane",
     "mixed_ops": "Działania na ułamkach z nawiasami",
     "fractions_visual": "Ułamki – oś liczbowa i diagramy",
+    "equiv":     "Uzupełnij ułamki równoważne",
 }[kind]
 
 # ---------------------------------------------------------------------------
@@ -92,6 +94,9 @@ def build_pdf_bytes(kind, num_problems, worksheet_title, **kwargs):
                 title=worksheet_title,
                 problem_types=kwargs.get("problem_types"),
             )
+        elif kind == "equiv":
+            from generate_equiv import build_pdf
+            build_pdf(filename=tmp_path, num_problems=num_problems, title=worksheet_title)
         with open(tmp_path, "rb") as f:
             return f.read()
     finally:
