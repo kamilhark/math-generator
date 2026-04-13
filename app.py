@@ -17,18 +17,25 @@ st.set_page_config(
 st.title("📐 Generator Zadań Matematycznych")
 st.caption("Twórz gotowe do druku arkusze PDF z zadaniami na ułamki.")
 
-GENERATORS = {
-    "➕➖  Dodawanie i odejmowanie": "addsub",
-    "✖️➗  Mnożenie i dzielenie": "muldiv",
-    "🔄  Zamiana ułamków niewłaściwych i mieszanych": "convert",
-    "🧮  Działania mieszane (z nawiasami)": "mixed_ops",
-    "📊  Ułamki na osi i diagramach": "fractions_visual",
-    "🟰  Ułamki równoważne (uzupełnij okienko)": "equiv",
-    "⚖️  Porównywanie ułamków (<, =, >)": "compare",
+CATEGORIES = {
+    "🔢  Ułamki zwykłe": {
+        "➕➖  Dodawanie i odejmowanie": "addsub",
+        "✖️➗  Mnożenie i dzielenie": "muldiv",
+        "🔄  Zamiana ułamków niewłaściwych i mieszanych": "convert",
+        "🧮  Działania mieszane (z nawiasami)": "mixed_ops",
+        "📊  Ułamki na osi i diagramach": "fractions_visual",
+        "🟰  Ułamki równoważne (uzupełnij okienko)": "equiv",
+        "⚖️  Porównywanie ułamków (<, =, >)": "compare",
+    },
+    "🔟  Ułamki dziesiętne": {
+        "🔄  Zamiana ułamków dziesiętnych": "decimal_convert",
+    },
 }
 
-choice = st.selectbox("Wybierz rodzaj arkusza", list(GENERATORS.keys()))
-kind = GENERATORS[choice]
+category = st.radio("Kategoria", list(CATEGORIES.keys()), horizontal=True)
+generators = CATEGORIES[category]
+choice = st.selectbox("Rodzaj arkusza", list(generators.keys()))
+kind = generators[choice]
 
 st.divider()
 
@@ -39,13 +46,14 @@ num_problems = st.number_input("Liczba zadań", min_value=4, max_value=20, value
 seed = None
 
 worksheet_title = {
-    "addsub":    "Dodawanie i odejmowanie ułamków",
-    "muldiv":    "Mnożenie i dzielenie ułamków",
-    "convert":   "Ułamki niewłaściwe i liczby mieszane",
-    "mixed_ops": "Działania na ułamkach z nawiasami",
+    "addsub":           "Dodawanie i odejmowanie ułamków",
+    "muldiv":           "Mnożenie i dzielenie ułamków",
+    "convert":          "Ułamki niewłaściwe i liczby mieszane",
+    "mixed_ops":        "Działania na ułamkach z nawiasami",
     "fractions_visual": "Ułamki – oś liczbowa i diagramy",
-    "equiv":     "Uzupełnij ułamki równoważne",
-    "compare":   "Porównaj ułamki: wpisz <, = lub >",
+    "equiv":            "Uzupełnij ułamki równoważne",
+    "compare":          "Porównaj ułamki: wpisz <, = lub >",
+    "decimal_convert":  "Ułamki dziesiętne – zamiana",
 }[kind]
 
 # ---------------------------------------------------------------------------
@@ -66,6 +74,22 @@ if kind == "fractions_visual":
         default=list(fv_labels.keys()),
     )
     extra_kwargs["problem_types"] = fv_choice if fv_choice else None
+
+if kind == "decimal_convert":
+    from generate_decimal_convert import LEVELS
+    level_labels = {
+        'A': 'Poziom A – ułamki dziesiętne (10, 100)',
+        'B': 'Poziom B – ułamki dziesiętne (100, 1000, 10000)',
+        'C': 'Poziom C – liczby mieszane z ułamkami dziesiętnymi',
+        'D': 'Poziom D – mianowniki 2, 4, 5',
+        'E': 'Poziom E – mianowniki 8, 20, 25, 50, 500',
+        'MISTRZ': 'Mistrz – mianowniki 12, 40, 125 (z upraszczaniem)',
+    }
+    extra_kwargs["level"] = st.selectbox(
+        "Poziom trudności",
+        options=LEVELS,
+        format_func=lambda k: level_labels[k],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -102,6 +126,14 @@ def build_pdf_bytes(kind, num_problems, worksheet_title, **kwargs):
         elif kind == "compare":
             from generate_compare import build_pdf
             build_pdf(filename=tmp_path, num_problems=num_problems, title=worksheet_title)
+        elif kind == "decimal_convert":
+            from generate_decimal_convert import build_pdf
+            build_pdf(
+                filename=tmp_path,
+                num_problems=num_problems,
+                title=worksheet_title,
+                level=kwargs.get("level", "A"),
+            )
         with open(tmp_path, "rb") as f:
             return f.read()
     finally:
