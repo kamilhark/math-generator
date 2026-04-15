@@ -29,6 +29,7 @@ CATEGORIES = {
     },
     "🔟  Ułamki dziesiętne": {
         "🔄  Zamiana ułamków dziesiętnych": "decimal_convert",
+        "⚖️  Porównywanie ułamków dziesiętnych i zwykłych (<, =, >)": "compare_decimal",
     },
 }
 
@@ -54,6 +55,7 @@ worksheet_title = {
     "equiv":            "Uzupełnij ułamki równoważne",
     "compare":          "Porównaj ułamki: wpisz <, = lub >",
     "decimal_convert":  "Ułamki dziesiętne – zamiana",
+    "compare_decimal":  "Porównaj ułamki dziesiętne i zwykłe: wpisz <, = lub >",
 }[kind]
 
 # ---------------------------------------------------------------------------
@@ -74,6 +76,22 @@ if kind == "fractions_visual":
         default=list(fv_labels.keys()),
     )
     extra_kwargs["problem_types"] = fv_choice if fv_choice else None
+
+if kind == "compare_decimal":
+    from generate_compare_decimal import PROBLEM_TYPES as CD_TYPES
+    cd_labels = {
+        "decimal_decimal":  "Dziesiętny vs dziesiętny",
+        "decimal_fraction": "Dziesiętny vs ułamek zwykły",
+        "fraction_decimal": "Ułamek zwykły vs dziesiętny",
+        "equal":            "Równe pary (np. 0.5 = 1/2)",
+    }
+    cd_choice = st.multiselect(
+        "Rodzaje zadań (puste = wszystkie losowo)",
+        options=CD_TYPES,
+        format_func=lambda k: cd_labels[k],
+        default=CD_TYPES,
+    )
+    extra_kwargs["problem_types"] = cd_choice if cd_choice else None
 
 if kind == "decimal_convert":
     from generate_decimal_convert import LEVELS
@@ -126,6 +144,14 @@ def build_pdf_bytes(kind, num_problems, worksheet_title, **kwargs):
         elif kind == "compare":
             from generate_compare import build_pdf
             build_pdf(filename=tmp_path, num_problems=num_problems, title=worksheet_title)
+        elif kind == "compare_decimal":
+            from generate_compare_decimal import build_pdf
+            build_pdf(
+                filename=tmp_path,
+                num_problems=num_problems,
+                title=worksheet_title,
+                problem_types=kwargs.get("problem_types"),
+            )
         elif kind == "decimal_convert":
             from generate_decimal_convert import build_pdf
             build_pdf(
