@@ -17,6 +17,8 @@ Six types of worksheets are available:
 ## Setup
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -25,6 +27,7 @@ pip install -r requirements.txt
 The easiest way to use the generators is via the Streamlit web app:
 
 ```bash
+source .venv/bin/activate
 streamlit run app.py
 ```
 
@@ -35,26 +38,28 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser. Select
 Each generator can also be run directly from the command line.
 
 ```bash
+source .venv/bin/activate
+
 # Addition & subtraction
-python generate_addsub.py -n 20 -o worksheet.pdf
+python3 generate_addsub.py -n 20 -o worksheet.pdf
 
 # Multiplication & division
-python generate_muldiv.py -n 20 -o worksheet.pdf
+python3 generate_muldiv.py -n 20 -o worksheet.pdf
 
 # Improper ↔ mixed conversion
-python generate_convert.py -n 20 -o worksheet.pdf
+python3 generate_convert.py -n 20 -o worksheet.pdf
 
 # Mixed operations with parentheses
-python generate_mixed_ops.py -n 20 -o worksheet.pdf
+python3 generate_mixed_ops.py -n 20 -o worksheet.pdf
 
 # Visual fraction tasks (number line, pie, subdivided rectangle)
-python generate_fractions_visual.py -n 20 -o worksheet.pdf
+python3 generate_fractions_visual.py -n 20 -o worksheet.pdf
 
 # Equivalent fractions — fill in the missing number
-python generate_equiv.py -n 20 -o worksheet.pdf
+python3 generate_equiv.py -n 20 -o worksheet.pdf
 
 # Fraction comparison — place <, =, or >
-python generate_compare.py -n 20 -o worksheet.pdf
+python3 generate_compare.py -n 20 -o worksheet.pdf
 ```
 
 ### Common options (all generators)

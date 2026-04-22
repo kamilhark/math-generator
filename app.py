@@ -28,6 +28,8 @@ CATEGORIES = {
         "⚖️  Porównywanie ułamków (<, =, >)": "compare",
     },
     "🔟  Ułamki dziesiętne": {
+        "➕➖  Dodawanie i odejmowanie ułamków dziesiętnych": "decimal_addsub",
+        "✖️➗  Mnożenie i dzielenie ułamków dziesiętnych": "decimal_muldiv",
         "🔄  Zamiana ułamków dziesiętnych": "decimal_convert",
         "⚖️  Porównywanie ułamków dziesiętnych i zwykłych (<, =, >)": "compare_decimal",
     },
@@ -48,12 +50,14 @@ seed = None
 
 worksheet_title = {
     "addsub":           "Dodawanie i odejmowanie ułamków",
+    "decimal_addsub":   "Dodawanie i odejmowanie ułamków dziesiętnych",
     "muldiv":           "Mnożenie i dzielenie ułamków",
     "convert":          "Ułamki niewłaściwe i liczby mieszane",
     "mixed_ops":        "Działania na ułamkach z nawiasami",
     "fractions_visual": "Ułamki – oś liczbowa i diagramy",
     "equiv":            "Uzupełnij ułamki równoważne",
     "compare":          "Porównaj ułamki: wpisz <, = lub >",
+    "decimal_muldiv":   "Mnożenie i dzielenie ułamków dziesiętnych",
     "decimal_convert":  "Ułamki dziesiętne – zamiana",
     "compare_decimal":  "Porównaj ułamki dziesiętne i zwykłe: wpisz <, = lub >",
 }[kind]
@@ -92,6 +96,33 @@ if kind == "compare_decimal":
         default=CD_TYPES,
     )
     extra_kwargs["problem_types"] = cd_choice if cd_choice else None
+
+if kind == "decimal_muldiv":
+    dm_level_labels = {
+        '1':   'Poziom 1 – ułamek dziesiętny × liczba całkowita',
+        '2':   'Poziom 2 – ułamek dziesiętny × ułamek dziesiętny (1 miejsce)',
+        '3':   'Poziom 3 – ułamki dziesiętne (do 3 miejsc po przecinku)',
+        'mix': 'Mix – wszystkie poziomy',
+    }
+    extra_kwargs["level"] = st.selectbox(
+        "Poziom trudności",
+        options=['1', '2', '3', 'mix'],
+        format_func=lambda k: dm_level_labels[k],
+        index=3,
+    )
+
+if kind == "decimal_addsub":
+    da_level_labels = {
+        '1':   'Poziom 1 – dziesiąte (0,1 – 9,9)',
+        '2':   'Poziom 2 – setne (0,01 – 9,99)',
+        'mix': 'Mix – dziesiąte i setne',
+    }
+    extra_kwargs["level"] = st.selectbox(
+        "Poziom trudności",
+        options=['1', '2', 'mix'],
+        format_func=lambda k: da_level_labels[k],
+        index=2,
+    )
 
 if kind == "decimal_convert":
     from generate_decimal_convert import LEVELS
@@ -151,6 +182,22 @@ def build_pdf_bytes(kind, num_problems, worksheet_title, **kwargs):
                 num_problems=num_problems,
                 title=worksheet_title,
                 problem_types=kwargs.get("problem_types"),
+            )
+        elif kind == "decimal_addsub":
+            from generate_decimal_addsub import build_pdf
+            build_pdf(
+                filename=tmp_path,
+                num_problems=num_problems,
+                title=worksheet_title,
+                level=kwargs.get("level", "mix"),
+            )
+        elif kind == "decimal_muldiv":
+            from generate_decimal_muldiv import build_pdf
+            build_pdf(
+                filename=tmp_path,
+                num_problems=num_problems,
+                title=worksheet_title,
+                level=kwargs.get("level", "mix"),
             )
         elif kind == "decimal_convert":
             from generate_decimal_convert import build_pdf
